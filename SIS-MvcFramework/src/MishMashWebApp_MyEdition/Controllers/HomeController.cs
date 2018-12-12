@@ -30,12 +30,12 @@ namespace MishMashWebApp_MyEdition.Controllers
 
                 var followedChannelsTags = this.Db.Channels
                 .Where(x => x.Followers.Any(f => f.User.Username == this.User.Username))
-                .SelectMany(x => x.Tags.Select(t => t.Id))
+                .SelectMany(x => x.Tags.Select(t => t.TagId))
                 .ToList();
 
                 viewModel.SuggestedChannels = this.Db.Channels
                 .Where(x => !x.Followers.Any(f => f.User.Username == this.User.Username) &&
-                x.Tags.Any(t => followedChannelsTags.Contains(t.Id)))
+                x.Tags.Any(t => followedChannelsTags.Contains(t.TagId)))
                 .Select(x => new BaseChannelViewModel
                 {
                     Id = x.Id,

@@ -20,7 +20,7 @@ namespace MishMashWebApp_MyEdition.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=.;Database=MishMash;Integrated Security=True;");
+            optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=MishMash;Integrated Security=True;");
         }
     }
 }
