@@ -56,13 +56,19 @@ namespace MishMashWebApp_MyEdition.Controllers
             // Hash password
             var hashedPassword = this.hashService.Hash(model.Password);
 
+            var role = Role.User;
+            if (!this.Db.Users.Any())
+            {
+                role = Role.Admin;
+            }
+
             // Create user
             var user = new User
             {
                 Username = model.Username.Trim(),
                 Password = hashedPassword,
                 Email = model.Email.Trim(),
-                Role = Role.User
+                Role = role
             };
             this.Db.Users.Add(user);
 

@@ -1,6 +1,9 @@
 ﻿@if (Model.UserRole == "Admin")
 {
 	<h1 class="text-center text-mishmash">Welcome, Admin-@User.Username!</h1> 
+    <div class="text-center">
+        <a class="btn btn-primary" href="/Channels/Create">Create channel</a>
+    </div>
 }
 @else
 {
@@ -27,8 +30,6 @@
 				@channel.FollowersCount Following
 				<hr class="hr-2 bg-white" />
 				Following
-				<hr class="hr-2 bg-white" />
-				<a href="/Channels/Follow?id=@channel.Id" class="bg-mishmash text-center text-white">Follow</a> <a href="/Channels/Details?id=@channel.Id" class="bg-mishmash text-center text-white">Details</a>
 			</div>
         }
     </div>
