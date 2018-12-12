@@ -1,28 +1,36 @@
-﻿<h1 class="text-center text-mishmash">Welcome, @User.Username!</h1>
+﻿@if (Model.UserRole == "Admin")
+{
+	<h1 class="text-center text-mishmash">Welcome, Admin-@User.Username!</h1> 
+}
+@else
+{
+	<h1 class="text-center text-mishmash">Welcome, @User.Username!</h1>
+}
 
 <h2 class="text-mishmash">Your channels</h2>
 <hr class="hr-2" />
 <div class="container-fluid">
     <div class="row justify-content-around">
-        @for(var i = 0; i < 7; i++)
+        @for(var i = 0; i < Model.YourChannels.Count(); i++)
         {
-        @if(i % 5 == 0 && i > 1)
-        {
-            </div>
-            <div class="row justify-content-around mt-3">
-        }
-            <div class="col-md-2 bg-mishmash text-center text-white">
-                some text
-                Channel name
-                <hr class="hr-2 bg-white" />
-                Game Channel
-                <hr class="hr-2 bg-white" />
-                4500 Following
-                <hr class="hr-2 bg-white" />
-                Following
-                <hr class="hr-2 bg-white" />
-                <a href="/Channels/Follow?id=1" class="bg-mishmash text-center text-white">Follow</a> <a href="/Channels/Details?id=1" class="bg-mishmash text-center text-white">Details</a>
-            </div>
+			{ var channel = Model.YourChannels.ToList()[i]; }
+			@if(i % 5 == 0 && i > 1)
+			{
+				</div>
+				<div class="row justify-content-around mt-3">
+			}
+			<div class="col-md-2 bg-mishmash text-center text-white">
+				some text
+				@channel.Name
+				<hr class="hr-2 bg-white" />
+				@channel.Type Channel
+				<hr class="hr-2 bg-white" />
+				@channel.FollowersCount Following
+				<hr class="hr-2 bg-white" />
+				Following
+				<hr class="hr-2 bg-white" />
+				<a href="/Channels/Follow?id=1" class="bg-mishmash text-center text-white">Follow</a> <a href="/Channels/Details?id=1" class="bg-mishmash text-center text-white">Details</a>
+			</div>
         }
     </div>
 </div>

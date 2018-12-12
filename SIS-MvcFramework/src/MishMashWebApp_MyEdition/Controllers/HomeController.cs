@@ -1,5 +1,8 @@
-﻿using SIS.HTTP.Responses;
+﻿using MishMashWebApp_MyEdition.ViewModels.Channels;
+using MishMashWebApp_MyEdition.ViewModels.Home;
+using SIS.HTTP.Responses;
 using SIS.MvcFramework;
+using System.Linq;
 
 namespace MishMashWebApp_MyEdition.Controllers
 {
@@ -8,9 +11,53 @@ namespace MishMashWebApp_MyEdition.Controllers
         [HttpGet("/Home/Index")]
         public IHttpResponse Index()
         {
-            if (User.IsLoggedIn)
+            var user = this.Db.Users.FirstOrDefault(x => x.Username == this.User.Username);
+
+            if (user != null)
             {
-                return this.View("Home/LoggedInIndex");
+                var viewModel = new LoggedInIndexViewModel();
+                viewModel.UserRole = user.Role.ToString();
+
+                viewModel.YourChannels = this.Db.Channels
+                .Where(x => x.Followers.Any(f => f.User.Username == this.User.Username))
+                .Select(x => new BaseChannelViewModel
+                {
+                    Id = x.Id,
+                    Type = x.Type,
+                    Name = x.Name,
+                    FollowersCount = x.Followers.Count(),
+                }).ToList();
+
+                var followedChannelsTags = this.Db.Channels
+                .Where(x => x.Followers.Any(f => f.User.Username == this.User.Username))
+                .SelectMany(x => x.Tags.Select(t => t.Id))
+                .ToList();
+
+                viewModel.SuggestedChannels = this.Db.Channels
+                .Where(x => !x.Followers.Any(f => f.User.Username == this.User.Username) &&
+                x.Tags.Any(t => followedChannelsTags.Contains(t.Id)))
+                .Select(x => new BaseChannelViewModel
+                {
+                    Id = x.Id,
+                    Type = x.Type,
+                    Name = x.Name,
+                    FollowersCount = x.Followers.Count(),
+                }).ToList();
+
+                var ids = viewModel.YourChannels.Select(x => x.Id).ToList();
+                ids = ids.Concat(viewModel.SuggestedChannels.Select(x => x.Id)).ToList();
+                ids = ids.Distinct().ToList();
+
+                viewModel.SeeOtherChannels = this.Db.Channels.Where(x => !ids.Contains(x.Id))
+                     .Select(x => new BaseChannelViewModel
+                     {
+                         Id = x.Id,
+                         Type = x.Type,
+                         Name = x.Name,
+                         FollowersCount = x.Followers.Count(),
+                     }).ToList();
+
+                return this.View("Home/LoggedInIndex", viewModel);
             }
             else
             {

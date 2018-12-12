@@ -38,7 +38,7 @@ namespace MishMashWebApp_MyEdition.Controllers
 
             var followedChannels = this.Db.Channels
                 .Where(x => x.Followers.Any(f => f.User.Username == this.User.Username))
-                .Select(x => new FollowedChannelViewModel
+                .Select(x => new BaseChannelViewModel
                 {
                     Id = x.Id,
                     Type = x.Type,

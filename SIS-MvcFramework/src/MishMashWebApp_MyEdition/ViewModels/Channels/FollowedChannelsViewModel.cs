@@ -4,6 +4,6 @@ namespace MishMashWebApp_MyEdition.ViewModels.Channels
 {
     public class FollowedChannelsViewModel
     {
-        public IEnumerable<FollowedChannelViewModel> FollowedChannels { get; set; }
+        public IEnumerable<BaseChannelViewModel> FollowedChannels { get; set; }
     }
 }
