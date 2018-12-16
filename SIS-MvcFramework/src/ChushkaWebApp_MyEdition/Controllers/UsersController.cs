@@ -1,5 +1,5 @@
-﻿using MishMashWebApp_MyEdition.Model;
-using MishMashWebApp_MyEdition.ViewModels.Users;
+﻿using ChushkaWebApp_MyEdition.Models;
+using ChushkaWebApp_MyEdition.ViewModels.Users;
 using SIS.HTTP.Cookies;
 using SIS.HTTP.Responses;
 using SIS.MvcFramework;
@@ -7,7 +7,7 @@ using SIS.MvcFramework.Services;
 using System;
 using System.Linq;
 
-namespace MishMashWebApp_MyEdition.Controllers
+namespace ChushkaWebApp_MyEdition.Controllers
 {
     public class UsersController : BaseController
     {
@@ -18,24 +18,19 @@ namespace MishMashWebApp_MyEdition.Controllers
             this.hashService = hashService;
         }
 
-        [HttpGet("/Users/Register")]
+        [HttpGet]
         public IHttpResponse Register()
         {
-            return this.View("Users/Register");
+            return this.View();
         }
 
-        [HttpPost("/Users/Register")]
-        public IHttpResponse DoRegister(DoRegisterInputModel model)
+        [HttpPost]
+        public IHttpResponse Register(DoRegisterViewModel model)
         {
             // Validate
             if (string.IsNullOrWhiteSpace(model.Username) || model.Username.Trim().Length < 4)
             {
                 return this.BadRequestError("Please provide valid username with length of 4 or more characters.");
-            }
-
-            if (string.IsNullOrWhiteSpace(model.Email) || model.Email.Trim().Length < 4)
-            {
-                return this.BadRequestError("Please provide valid email with length of 4 or more characters.");
             }
 
             if (this.Db.Users.Any(x => x.Username == model.Username.Trim()))
@@ -56,20 +51,20 @@ namespace MishMashWebApp_MyEdition.Controllers
             // Hash password
             var hashedPassword = this.hashService.Hash(model.Password);
 
-            var role = Role.User;
-            if (!this.Db.Users.Any())
-            {
-                role = Role.Admin;
-            }
-
             // Create user
             var user = new User
             {
                 Username = model.Username.Trim(),
                 Password = hashedPassword,
-                Email = model.Email.Trim(),
-                Role = role
+                FullName = model.FullName,
+                Email = model.Email,
             };
+
+            if (!this.Db.Users.Any())
+            {
+                user.Role = UserRole.Admin;
+            }
+
             this.Db.Users.Add(user);
 
             try
@@ -83,17 +78,17 @@ namespace MishMashWebApp_MyEdition.Controllers
             }
 
             // Redirect
-            return this.Redirect("/Users/Login");
+            return this.Redirect("/users/login");
         }
 
-        [HttpGet("/Users/Login")]
+        [HttpGet]
         public IHttpResponse Login()
         {
-            return this.View("Users/Login");
+            return this.View();
         }
 
-        [HttpPost("/Users/Login")]
-        public IHttpResponse DoLogin(DoLoginInputModel model)
+        [HttpPost]
+        public IHttpResponse Login(DoLoginViewModel model)
         {
             var hashedPassword = this.hashService.Hash(model.Password);
 
@@ -106,7 +101,13 @@ namespace MishMashWebApp_MyEdition.Controllers
                 return this.BadRequestError("Invalid username or password.");
             }
 
-            var mvcUser = new MvcUserInfo { Username = user.Username };
+            var mvcUser = new MvcUserInfo
+            {
+                Username = user.Username,
+                Role = user.Role.ToString(),
+                Info = user.FullName
+            };
+
             var cookieContent = this.UserCookieService.GetUserCookie(mvcUser);
 
             var cookie = new HttpCookie(".auth-cakes", cookieContent, 7) { HttpOnly = true };
@@ -114,7 +115,6 @@ namespace MishMashWebApp_MyEdition.Controllers
             return this.Redirect("/");
         }
 
-        [HttpGet("/Users/Logout")]
         public IHttpResponse Logout()
         {
             if (!this.Request.Cookies.ContainsCookie(".auth-cakes"))

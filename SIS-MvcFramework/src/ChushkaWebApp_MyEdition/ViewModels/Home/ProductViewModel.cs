@@ -1,4 +1,4 @@
-﻿namespace ChushkaWebApp.ViewModels.Home
+﻿namespace ChushkaWebApp_MyEdition.ViewModels.Home
 {
     public class ProductViewModel
     {
@@ -7,6 +7,8 @@
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public decimal Price { get; set; }
 
         public string ShortDescription
         {
@@ -22,7 +24,5 @@
                 }
             }
         }
-
-        public decimal Price { get; set; }
     }
 }
